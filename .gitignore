@@ -1,7 +1,7 @@
 #migrations folder
-/nvmt/migrations/
+/nvmt/migrations
 
 #cache folder
-/nvmt/__pycache__/
+/nvmt/__pycache__
 
 db.sqlite3
