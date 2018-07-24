@@ -1,0 +1,3 @@
+nvmt/migrations/
+nvmt/__pycache__/
+db.sqlite3
