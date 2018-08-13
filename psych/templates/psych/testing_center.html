@@ -1,0 +1,67 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+  <header>
+    <nav class="">
+      <div class="nav-wrapper">
+        <a href="#" data-activates="nav-mobile" class="button-collapse top-nav full hide-on-large-only">
+          <i class="mdi-navigation-menu"></i>
+        </a>
+        <span href="#" class="brand-logo page-title">
+          <img src="img/logo.png" width="160"/>
+          {{ user}}
+        </span>
+        <ul class="right hide-on-med-and-down">
+          <li>
+            <a href="{% url 'psych:dashboard' %}" class="tooltipped" data-position="left" data-delay="50" data-tooltip="Back to Dashboard">Dashboard</a>
+          </li>
+          <li>
+            <a href="{% url 'psych:databoard' %}" class="tooltipped" data-position="left" data-delay="50" data-tooltip="Back to Dashboard">Databoard</a>
+          </li>
+          <li>
+            <a href="{% url 'home:logout' %}" class="tooltipped" data-position="left" data-delay="50" data-tooltip="Logout">Logout</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+<script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
+<main>
+  <div class="card card-header">
+    <div class="card-content">
+      <span class="card-title black-text" style="text-align: center;">
+          {{ user }}'s Testing Center
+      </span>
+      <div class="row" style="margin-left: 7.7%;">
+        <div class="col s8 m8 l7 offset-s3 offset-m3 offset-l2">
+          <form method="POST">
+            {% csrf_token %}
+            <div class="container">
+                <div class="row center">
+                    {{ test_form.test_code }}
+                </div>
+                <div class="row center">
+                    <input type="submit" value="Spy On a Test" class="waves-effect waves-light btn" name="action">
+                </div>
+            </div>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>    
+</main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    
+    <script>
+      
+    $(document).ready(function(){
+      $('.modal').modal();
+      $('select').material_select();
+    });
+    function toggleModal() {
+      $('#modal1').modal('open');
+    }
+    </script>
+{% endblock %}

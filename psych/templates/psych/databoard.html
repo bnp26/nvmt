@@ -1,0 +1,97 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+  <header>
+    <nav class="">
+      <div class="nav-wrapper">
+        <a href="#" data-activates="nav-mobile" class="button-collapse top-nav full hide-on-large-only">
+          <i class="mdi-navigation-menu"></i>
+        </a>
+        <span href="#" class="brand-logo page-title">
+          <img src="img/logo.png" width="160"/>
+          {{ user}}
+        </span>
+        <ul class="right hide-on-med-and-down">
+          <li>
+            <a href="{% url 'psych:dashboard' %}" class="tooltipped" data-position="left" data-delay="50" data-tooltip="Back to Dashboard">Dashboard</a>
+          </li>
+          <li>
+            <a href="{% url 'psych:testing_center' %}" class="tooltipped" data-position="left" data-delay="50" data-tooltip="Back to Testing Center">Testing Center</a>
+          </li>
+          <li>
+            <a href="{% url 'home:logout' %}" class="tooltipped" data-position="left" data-delay="50" data-tooltip="Logout">Logout</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+<script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
+<main>
+  <div class="card card-header">
+    <div class="card-content">
+      <span class="card-title black-text" style="text-align: center;">
+          {{ user }}'s Data Board
+      </span>
+      <div class="row" style="margin-left: 7.7%;">
+        <!-- Chart 1 -->
+        <div class="col s5 m5 l5">
+            <div class="card">
+              <div class="card-content">
+                <div class="ct-chart1 ct-perfect-fourth">
+                </div>
+              </div>
+              <div class="card-action">
+                <a href="#">This is a link</a>
+              </div>
+            </div>
+        </div>
+        
+        <!-- Chart 2 -->
+        <div class="col s5 m5 l5 offset-s1 offset-m2 offset-l1">
+            <div class="card">
+              <div class="card-content">
+                <div class="ct-chart2 ct-perfect-fourth">
+                </div>
+              </div>
+              <div class="card-action">
+                <a href="#">This is a link</a>
+              </div>
+            </div>
+        </div>
+      
+      </div>
+      
+      <script type="text/javascript">
+      var data = {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+        series: [
+          [5, 2, 4, 2, 0]
+        ]
+      };
+        
+      var options = {
+        width: 550,
+        height: 365
+      };
+      
+      new Chartist.Line('.ct-chart1', data, options);
+      new Chartist.Line('.ct-chart2', data, options);
+      </script>
+    </div>
+  </div>    
+</main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    
+    <script>
+      
+    $(document).ready(function(){
+      $('.modal').modal();
+      $('select').material_select();
+    });
+    function toggleModal() {
+      $('#modal1').modal('open');
+    }
+    </script>
+{% endblock %}

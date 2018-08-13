@@ -1,0 +1,40 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+    <div class="container">
+      <div class="row">
+        <div class="col s11 offset-s3">
+          <form class="col s12 m6" method="post">
+            {% csrf_token %}
+            <div class="card medium">
+              <div class="card-content brown-text">
+                <span class="card-title center-align">Login</span>
+                <div class="row">
+                  <div class="input-field col s8 offset-s2 validate">
+                      {{ form.username }}
+                  </div>
+                </div>
+                 <div class="row">
+                  <div class="input-field col s8 offset-s2 validate">
+                      {{ form.password }}
+                  </div>
+                </div>
+              </div>
+              <div class="card-action">
+                <div class="row">
+                    <div class="col s12 center">
+                        <button class="btn waves-effect waves-light" type="submit" name="action">Login</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s6 offset-s3  center">
+                        <a href="{% url 'home:register' %}">register</a>
+                    </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+{% endblock %}

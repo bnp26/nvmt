@@ -1,0 +1,237 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+  <header>
+    <nav class="">
+      <div class="nav-wrapper">
+        <a href="#" data-activates="nav-mobile" class="button-collapse top-nav full hide-on-large-only">
+          <i class="mdi-navigation-menu"></i>
+        </a>
+        <span href="#" class="brand-logo page-title">
+          <img src="img/logo.png" width="160"/>
+          {{ user}}
+        </span>
+        <ul class="right hide-on-med-and-down">
+           <li>
+            <a href="{% url 'psych:databoard' %}" class="tooltipped" data-position="left" data-delay="50" data-tooltip="Back to Databoard">Databoard</a>
+          </li>
+          <li>
+            <a href="{% url 'psych:testing_center' %}" class="tooltipped" data-position="left" data-delay="50" data-tooltip="Back to Testing Center">Testing Center</a>
+          </li>
+          <li>
+            <a href="{% url 'psych:scales' %}" class="tooltipped" data-position="left" data-delay="50" data-tooltip="View the different scales">View Scales</a>
+          </li>
+          <li>
+            <a href="{% url 'home:logout' %}" class="tooltipped" data-position="left" data-delay="50" data-tooltip="Logout">Logout</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+  <main>
+    <div class="card card-header">
+      <div class="card-content">
+        <div class="row">
+          <span class="card-title black-text" style="text-align: center;">
+            {{ user }}'s Dashboard
+          </span>
+        
+          <div class="col s8 m4 l3">
+            <button data-target="modal1" class="btn modal-trigger" onclick="toggleModal()">add new patient</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col s12 m6 l6">
+          <div class="card">
+              <div class="card-content black-text center">
+                  <p style="font-size: 130%;">Patients</p>
+                  <table class="center striped">
+                    <thead>
+                      <tr>
+                          <th>Identification</th>
+                          <th>Tests Taken</th>
+                          <th>Create Test</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for subj in subjects %}
+                      <tr >
+                        <div class="valign-wrapper">
+                          <td style="padding: 5px; width: 115px;" class="truncate">{{ subj.id }}</td>
+                          <td style="padding: 5px;">0</td>
+                          <td style="padding: 5px;"><a name="gen_test" class="waves-effect waves-light btn modal-trigger" href="{% url 'test_app:generate_test' subject=subj.id %}" style="padding:0px 10px; height: 30px;">Give Test</a></td>
+                        </div>
+                      </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+              </div>
+          </div>
+      </div>
+      <div class="col s12 m6 l6">
+          <div class="card">
+              <div class="card-content black-text center">
+                  <p style="font-size: 130%;">Tests Being Taken</p>
+                  <table class="center striped">
+                    <thead>
+                      <tr>
+                          <th>Patient</th>
+                          <th>Test Code</th>
+                          <th>Has Finished</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for test in subjects_taking_tests %}
+                      <tr>
+                        <td style="padding: 5px; width: 115px;" class="truncate">{{ test.subject_id }}</td>
+                        <td style="padding: 5px;">{{ test.test_code }}</td>
+                        <td style="padding: 5px;">
+                        {% if test.is_finished %}
+                        Yes
+                        {% else %}
+                        No
+                        {% endif %}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+              </div>
+          </div>
+      </div>
+  <div id="modalSubj" class="modal modal-fixed-footer" style="overflow:hidden;overflow-y:visible;">
+    <div class="modal-content" style="overflow-y:visible;">
+      <h5 class="center">New Patient</h6>
+        <div class="row">
+          <div class="col s12">
+          </div>
+        </div>
+        <form class="col s12" method='POST' id="new_patient_form">
+          {% csrf_token %}
+          <div id="create_patient" class="row">
+              <div class="row">
+                <div class="input-field col s2 offset-s1">
+                  {{ subject_form.age }}
+                  <label for="age">Age</label>
+                </div>
+                <div class="input-field col s2 offset-s1">
+                  {{ subject_form.gender }}
+                  <label for="gender">Gender</label>
+                </div>
+                <div class="input-field col s4 offset-s1">
+                  {{ subject_form.ethnicity}}
+                  <label for="ethnicity">Ethnicity</label>
+                </div>
+              </div>
+              <div class="row">
+                <div class="input-field col s4 offset-s1">
+                  {{ subject_form.education }}
+                  <label for="education">Education</label>
+                </div>
+                <div class="input-field col s5 offset-s1">
+                    {{ subject_form.chronic_desc }}
+                  <label for="chronic_desc">Chronic Description</label>
+                </div>
+              </div>
+              <div class="row"> 
+                <div style="margin-left: 8px;" class="input-field col s3 suffix">
+                  <i class="small material-icons"><button data-target="#modalMeds" class="modal-trigger" onclick="toggleMedsModal()">add</button></i>
+                  {{ subject_form.meds }}
+                  <label for="meds">Medication</label>
+                </div>
+                <div class="input-field col s3 offset-s1 suffix">
+                  <i class="small material-icons"><button data-target="#modalMedIssues" class="modal-trigger" onclick="toggleMedIssuesModal()">add</button></i>
+                  {{ subject_form.med_issues }}
+                  <label for="med_issues">Medical Diagnoses</label>
+                </div>
+                <div class="input-field col s3 offset-s1 suffix">
+                  <i class="small material-icons"><button data-target="modalPsychIssues" class="modal-trigger" onclick="togglePsychIssuesModal()">add</button></i>
+                  {{ subject_form.mental_issues }}
+                  <label for="psych_issues">Psychological Diagnoses</label>
+                </div>
+              </div>
+          </div>
+          <button type="submit" name="action" style="display: none;"></button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button id="modal1" class="modal-action modal-close waves-effect btn" onclick="submitNewSubject('{{ subject_form.errors }}')">Add Subject</button>
+      </div>
+  </div>
+  <div id="modalMeds" class="modal modal-fixed-footer" style="overflow:hidden;overflow-y:visible;">
+    {% csrf_token %}
+    <div class="modal-content" style="overflow-y:visible;">
+      <h5 class="center">New Medication</h6>
+      <div class="row">
+        <div class="col s12">
+        </div>
+      </div>
+      <div id="create_medication" class="row">
+          <div class="row">
+            <div class="input-field col s7">
+              <input type="text" id="med_name" name="name" />
+              <label for="name">Name</label>
+            </div>
+            <div class="input-field col s3 offset-s1">
+              <input type="text" id="med_dosage" name="dosage" />
+              <label for="dosage">Dosage</label>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+      <button id="med_modal" class="modal-action modal-close waves-effect btn" onclick="addNewMedication('{{ csrf_token }}');">Add Medication</button>
+    </div>
+  </div>
+  <div id="modalMedIssues" class="modal modal-fixed-footer" style="overflow:hidden;overflow-y:visible;">
+    {% csrf_token %}
+    <div class="modal-content" style="overflow-y:visible;">
+      <h5 class="center">New Medical Diagnosis</h6>
+      <div class="row">
+        <div class="col s12">
+        </div>
+      </div>
+      <div id="create_medical_diagnosis" class="row">
+          <div class="row">
+            <div class="input-field col s7">
+              <input type="text" id="med_issue_name" name="name" />
+              <label for="name">Name</label>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+      <button id="med_issues_modal" class="modal-action modal-close waves-effect btn" onclick="addNewMedicalDiagnosis('{{ csrf_token }}')">Add Diagnosis</button>
+    </div>
+  </div>
+  <div id="modalPsychIssues" class="modal modal-fixed-footer" style="overflow:hidden;overflow-y:visible;">
+    {% csrf_token %}
+    <div class="modal-content" style="overflow-y:visible;">
+      <h5 class="center">New Psychological Diagnosis</h6>
+      <div class="row">
+        <div class="col s12">
+        </div>
+      </div>
+      <div id="create_psychological_diagnosis" class="row">
+          <div class="row">
+            <div class="input-field col s7">
+              <input type="text" id="psych_issue_name" name="name" />
+              <label for="name">Name</label>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+      <button id="psych_issues_modal" class="modal-action modal-close waves-effect btn" onclick="addNewPsychologicalDiagnosis('{{ csrf_token }}')">Add Diagnosis</button>
+    </div>
+  </div>
+  <script type="text/javascript">
+ 
+  </script>
+    </main>
+  </div>
+{% endblock %}

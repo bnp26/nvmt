@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>NvMT Registration</title>
+    <
+  </head>
+  <body>
+    <div id='subject-reg'>
+      <input v-model.number="age" type="number">
+      <select v-model="gender">
+        <option v-for="gender_option in gender_options" v-bind:value="gender_option.value">
+          {{ gender_option.text }}
+        </option>
+      </select>
+      <select v-model="education">
+        <option v-for="edu_option in edu_options" v-bind:value="edu_option.value">
+          {{ edu_option.text }}
+        </option>
+      </select>
+      <button v-on="submitSubject" />Register</button>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.3.5"></script>
+    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+    <script>
+      new Vue({
+        el: 'subject-reg',
+        data: {
+          age: 0,
+          gender: '',
+          gender_options: [
+            { text: 'Male', value: 'M' },
+            { text: 'Female', value: 'F' },
+            { text: 'Other', value: 'O'}
+          ],
+          education: '',
+          edu_options: [
+            { text: 'High School', value: 'HS' },
+            { text: 'Associate Degree', value: 'A' },
+            { text: 'Bachelors Degree', value: 'B' },
+            { text: 'Masters', value: 'MS' },
+            { text: 'Doctor of Medicin', value: 'MD' },
+            { text: 'PhD', value: 'P' }
+          ]
+        }
+      })
+    </script>
+  </body>

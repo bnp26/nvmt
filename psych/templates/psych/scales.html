@@ -1,0 +1,71 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+  <header>
+    <nav class="">
+      <div class="nav-wrapper">
+        <a href="#" data-activates="nav-mobile" class="button-collapse top-nav full hide-on-large-only">
+          <i class="mdi-navigation-menu"></i>
+        </a>
+        <span href="#" class="brand-logo page-title">
+          <img src="img/logo.png" width="160"/>
+          {{ user}}
+        </span>
+        <ul class="right hide-on-med-and-down">
+          <li>
+            <a href="{% url 'psych:dashboard' %}" class="tooltipped" data-position="left" data-delay="50" data-tooltip="Back to Dashboard">Dashboard</a>
+          </li>
+          <li>
+            <a href="{% url 'psych:databoard' %}" class="tooltipped" data-position="left" data-delay="50" data-tooltip="Back to Databoard">Databoard</a>
+          </li>
+          <li>
+            <a href="{% url 'psych:testing_center' %}" class="tooltipped" data-position="left" data-delay="50" data-tooltip="Back to Testing Center">Testing Center</a>
+          </li>
+          <li>
+            <a href="{% url 'home:logout' %}" class="tooltipped" data-position="left" data-delay="50" data-tooltip="Logout">Logout</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+  <main>
+    <div class="row">
+      <div class="col s12 m10 l8 offset-m1 offset-l3">
+        <h4>Questions</h4>
+        <div class="row">
+          <div class="row">
+            <div class="col s2 m2 l2">
+              <h5>Id</h5>
+            </div>
+            <div class="col s6 m6 l6">
+              <h5>Question</h5>
+            </div>
+            <div class="col s4 m4 l4">
+              <h5>
+                Is Reversed
+              </h5>
+            </div>
+        </div>
+        {% for scale in scales %}
+        <div class="row">
+          {{ scale.name }}
+          <br />
+          {% for question in scale.questions %}
+          <div class="row">
+            <div class="col s2 m2 l2">
+              {{ question.id }}
+            </div>
+            <div class="col s6 m6 l6">
+              {{ question.question }}
+            </div>
+            <div class="col s4 m4 l4">
+              {{ question.is_reversed }}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </main>
+{% endblock %}
