@@ -20,6 +20,7 @@ from django.conf.urls.static import static
 from django.urls import path
 
 from nvmt import views, models
+import home
 
 urlpatterns = [
     url(r'^', include('home.urls')),
