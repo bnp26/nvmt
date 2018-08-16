@@ -1,8 +1,6 @@
 from django.conf.urls import url
 from django.conf import settings
 from django.conf.urls.static import static
-
-
 from django.urls import path
 
 from . import views
@@ -10,9 +8,7 @@ from . import views
 app_name = 'nvmt'
 
 urlpatterns = [
-    url(r'^', views.home, name='home'),
-    url(r'^login/', views.login, name='login'),
-    url(r'^signup/', views.signup, name='signup'),
-    url(r'^register-subject/', views.register_subject, name='register_subject'),
-    url(r'^test-completed/', views.test_finished, name='test_finished'),
+    url(r'^$', views.test_home, name='test_home'),
+    url(r'^test-start/(?P<test_code>\w{8})/$', views.test_start, name='test_start'),
+    url(r'^test-data/(?P<test_code>\w{8})/$', views.send_test_data, name='test_data'),
 ]

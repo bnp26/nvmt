@@ -1,7 +1,16 @@
 #migrations folder
 /nvmt/migrations
+/home/migrations
+/psych/migrations
+/qpss/migrations
 
 #cache folder
 /nvmt/__pycache__
+/home/__pycache__
+/psych/__pycache__
+/qpss/__pycache__
 
 db.sqlite3
+
+#pyc files
+*.pyc

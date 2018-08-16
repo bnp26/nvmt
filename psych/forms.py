@@ -1,7 +1,11 @@
 from django import forms
+from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from django.forms import ModelForm
+
+import os
+from binascii import hexlify, unhexlify
+import pdb
 
 from .models import Subject, PsychDiagnosis, MedicalDiagnosis, Medication
 
@@ -26,10 +30,6 @@ class RegistrationForm(forms.Form):
             raise forms.ValidationError("Passwords don't match")
 
         return self.cleaned_data
-
-    def save(self):
-        user = User.objects.create_user(first_name = self.cleaned_data.get('first_name'), last_name = self.cleaned_data.get('last_name'), email = self.cleaned_data.get('email'), username = self.cleaned_data.get('username'), password = self.cleaned_data.get('password1'))
-#        user.save()
     
     def save(self, data):
         user =  User.objects.create_user(first_name = data.get('first_name'), last_name = data.get('last_name'), email = data.get('email'), username = data.get('username'), password = data.get('password1'))
@@ -37,6 +37,10 @@ class RegistrationForm(forms.Form):
         
 class GetTestForm(forms.Form):
     test_code = forms.CharField(max_length=11, required=True, help_text='enter code for test', widget=forms.TextInput(attrs={'placeholder':'QPPI CODE', 'name':'test_code', 'class':'col s6 offset-s3 center', 'style': 'font-size: 25pt'}))
+
+    def clean(self):
+        super().clean()
+        return self.cleaned_data
 
 class MedicationForm(forms.Form):
     name = forms.CharField(max_length=80, required=True, widget=forms.TextInput(attrs={'placeholder': 'medication name', 'class':'col s8'}))
@@ -59,7 +63,7 @@ class PsychDiagnosisForm(forms.Form):
     def save(self, data):
         psych_diag = PsychDiagnosis(name=data.get('name'))
         psych_diag.save()
-  
+
 class SubjectForm(forms.Form):
 
     GENDER_CHOICES = (
@@ -67,7 +71,7 @@ class SubjectForm(forms.Form):
         ('F', 'Female'),
         ('O', 'Other'),
     )
-    
+
     ETHNIC_CHOICES = (
         ('AfA', 'African American'),
         ('CA', 'Caucasian American'),
@@ -78,13 +82,13 @@ class SubjectForm(forms.Form):
     )
 
     EDU_CHOICES = (
-        ('HS_WO/D', 'Some High School (No Deploma)'),
-        ('HS_W/D', 'High School Deploma'),
-        ('C_WO/D', 'Some College Experience (No Degree)'),
-        ('C_BA', 'Batchelor of Arts'),
-        ('C_BS', 'Batchelor of Science'),
-        ('C_MS', 'Masters Degree'),
-        ('C_DO', 'Doctrate Degree'),
+        ('HS_WO/D', 'Some High School (No Diploma)'),
+        ('HS_W/D', 'High School Diploma'),
+        ('C_WO/D', 'Some College Experience (No Diploma)'),
+        ('C_BA', 'Bachelor of Arts'),
+        ('C_BS', 'Bachelor of Science'),
+        ('C_MS', 'Master\'s Degree'),
+        ('C_DO', 'Doctorate Degree'),
     )
     
     MED_CHOICES = ()
@@ -116,11 +120,12 @@ class SubjectForm(forms.Form):
     education = forms.ChoiceField(choices=EDU_CHOICES, widget=forms.Select(attrs={'class':'form-control'}))
     chronic_desc = forms.CharField(max_length=255, required=False, help_text='chronic description in less than 255 characters', 
                                    widget=forms.Textarea(attrs={'placeholder':'chronic description', 'class':'materialize-textarea txtarea'}))
-    meds = forms.MultipleChoiceField(widget=forms.SelectMultiple(attrs={'class': 'meds-choices'}), choices=MED_CHOICES)
-    med_issues = forms.MultipleChoiceField(widget=forms.SelectMultiple(attrs={'class': 'med-issues-choices'}), choices=MED_ISSUE_CHOICES)
-    mental_issues = forms.MultipleChoiceField(widget=forms.SelectMultiple(attrs={'class': 'mental-issues-choices'}), choices=MENTAL_ISSUE_CHOICES)
+    meds = forms.MultipleChoiceField(widget=forms.SelectMultiple(attrs={'class': 'meds-choices'}), choices=MED_CHOICES, required=False)
+    med_issues = forms.MultipleChoiceField(widget=forms.SelectMultiple(attrs={'class': 'med-issues-choices'}), choices=MED_ISSUE_CHOICES, required=False)
+    mental_issues = forms.MultipleChoiceField(widget=forms.SelectMultiple(attrs={'class': 'mental-issues-choices'}), choices=MENTAL_ISSUE_CHOICES, required=False)
     
     def save(self, data):
+        print("saving")
         user = data.get('user')
         new_user = User.objects.get(username=user.get_username())
         subject = Subject(user=new_user, age=data.get('age'), gender=data.get('gender'), ethnicity=data.get('ethnicity'), edu_lvl=data.get('education'), chronic_desc = data.get('chronic_desc'))

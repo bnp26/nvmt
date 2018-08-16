@@ -1,42 +1,93 @@
 $(document).ready(function(){
     $('.modal').modal();
-    $('select').material_select();
+    $('select').formSelect();
+});
+
+function toggleModal() {
+  $('#modalSubj').modal('open');
+}
+
+function toggleMedsModal() {
+  $('#modalMeds').modal('open');
+}
+
+function toggleMedIssuesModal() {
+  $('#modalMedIssues').modal('open');
+}
+
+function togglePsychIssuesModal() {
+  $('#modalPsychIssues').modal('open');
+}
+
+function submitNewSubject(errors) {
+  console.log(errors);
+  $('#new_patient_form').submit();
+}
+
+function addNewMedication(csrftoken, url) {
+  let name = $("#med_name").val();
+  let dosage = $("#med_dosage").val();
+  
+  var payload = {'name': name, 'dosage': dosage};
+  $.ajax({
+    type: "POST",
+    url: url,
+    headers: {'X-CSRFToken': csrftoken},
+    dataType: 'json',
+    data: payload,
+    success: function (data, textStatus, jqXHR) {
+      console.log(data);
+      console.log(textStatus);
+      console.log(jqXHR);
+    },
+    fail: function (error) {
+      console.log(error);
+    }
   });
+}
+
+function addNewMedicalDiagnosis(csrftoken, url) {
+  let name = $("#med_issue_name").val();
   
-  function toggleModal() {
-    $('#modal1').modal('open');
+  var payload = {'name': name};
+  $.ajax({
+    type: "POST",
+    url: url,
+    headers: {'X-CSRFToken': csrftoken},
+    dataType: 'json',
+    data: payload,
+    success: function (data, textStatus, jqXHR) {
+      console.log(data);
+      console.log(textStatus);
+      console.log(jqXHR);
+    },
+    fail: function (error) {
+      console.log(error);
+    }
+  });
+}
+
+function addNewPsychologicalDiagnosis(csrftoken, url) {
+  let name = $("#psych_issue_name").val();
+  
+  var payload = {'name': name};
+  $.ajax({
+    type: "POST",
+    url: url,
+    headers: {'X-CSRFToken': csrftoken},
+    dataType: 'json',
+    data: payload,
+    success: function (data, textStatus, jqXHR) {
+      console.log(data);
+      console.log(textStatus);
+      console.log(jqXHR);
+    },
+    fail: function (error) {
+      console.log(error);
   }
-  
-  function toggleMedsModal() {
-    $('#meds_modal').modal('open');
-  }
-  
-  function submitNewSubject(errors) {
-    console.log(errors);
-    $('#new_patient_form').submit();
-  }
-  
-  function addNewMedication(csrftoken) {
-    let name = $("#med_name").val();
-    let dosage = $("#med_dosage").val();
-    
-    var payload = { med : {'name' : name, 'dosage' : dosage} };
-    $.ajaxSetup({
-      url: "/psych_app/dashboard/new_med",
-      headers: {'X-CSRFToken': csrftoken},
-      dataType: 'json',
-      success: function (data, textStatus, jqXHR) {
-        console.log(data);
-        console.log(textStatus);
-        console.log(jqXHR);
-      }
-    });
-    var request = $.ajax({
-      data: payload,
-    }).success(function(response) {
-      console.log(response);
-    }).fail(function (error) {
-        console.log(error);
-    });
-  }
-  
+  });
+}
+
+function generateNewTest(url) {
+  window.location.href = url;
+}

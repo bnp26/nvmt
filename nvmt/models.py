@@ -5,24 +5,27 @@ from django.contrib.auth.models import User
 from psych.models import Subject
 
 class Test(models.Model):
+    test_code = models.CharField(max_length=8, primary_key=True)
     subject = models.ForeignKey(Subject, related_name='test', on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['created']
 
+
 class Trial(models.Model):
-    test = models.ForeignKey(Test, related_name='trials', on_delete=models.CASCADE)
+    test = models.ForeignKey(Test, related_name='trial', on_delete=models.CASCADE)
     trial_num = models.IntegerField(default=1)
 
     class Meta:
         unique_together = ('test', 'trial_num')
         ordering = ['trial_num']
 
+
 class Card(models.Model):
     start = models.DateTimeField(auto_now_add=True)
     finish = models.DateTimeField()
-    trial = models.ForeignKey(Trial, related_name='cards', on_delete=models.CASCADE)
+    trial = models.ForeignKey(Trial, related_name='card', on_delete=models.CASCADE)
 
 class Target(models.Model):
     x = models.IntegerField(default=0)

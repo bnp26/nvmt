@@ -1,10 +1,13 @@
 from django.contrib.auth.models import User
 from django.db import models
+
 import os
-from binascii import hexlify
+from binascii import hexlify, unhexlify
 
 def _createId():
-    return hexlify(os.urandom(16))
+    new_id = hexlify(os.urandom(8)).decode('ASCII')
+    print(new_id)
+    return new_id
 
 GENDER_CHOICES = (
     ('M', 'Male'),
@@ -22,30 +25,27 @@ ETHNIC_CHOICES = (
 )
 
 EDU_CHOICES = (
-    ('HS_WO/D', 'Some High School (No Deploma)'),
-    ('HS_W/D', 'High School Deploma'),
-    ('C_WO/D', 'Some College Experience (No Degree)'),
-    ('C_BA', 'Batchelor of Arts'),
-    ('C_BS', 'Batchelor of Science'),
-    ('C_MS', 'Masters Degree'),
-    ('C_DO', 'Doctrate Degree'),
+    ('HS_WO/D', 'Some High School (No Diploma)'),
+    ('HS_W/D', 'High School Diploma'),
+    ('C_WO/D', 'Some College Experience (No Diploma)'),
+    ('C_BA', 'Bachelor of Arts'),
+    ('C_BS', 'Bachelor of Science'),
+    ('C_MS', 'Master\'s Degree'),
+    ('C_DO', 'Doctorate Degree'),
 )
 
-class MedicalDiagnosis(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length = 120, blank=False)
-    
-class PsychDiagnosis(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length = 120, blank=False)
-
 class Medication(models.Model):
-    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length = 80, blank=False)
     dosage = models.CharField(max_length = 5, blank=False)
 
+class MedicalDiagnosis(models.Model):
+    name = models.CharField(max_length = 120, blank=False)
+    
+class PsychDiagnosis(models.Model):
+    name = models.CharField(max_length = 120, blank=False)
+
 class Subject(models.Model):
-    id = models.CharField(max_length=32, primary_key=True, default=_createId)
+    id = models.CharField(max_length=16, primary_key=True, default=_createId)
     created = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     age = models.IntegerField()
@@ -58,4 +58,4 @@ class Subject(models.Model):
     mental_issues = models.ManyToManyField(PsychDiagnosis, blank=True)
     
     class Meta:
-        ordering = ('id', 'created', )
+        ordering = ('created', 'id', )

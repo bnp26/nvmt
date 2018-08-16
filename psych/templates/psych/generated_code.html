@@ -1,0 +1,21 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+<div class="section no-pad-bot" id="index-banner">                                                                                                                                                              
+    <div class="container">
+        <br><br>
+        <h1 class="header center orange-text">QPPI Test Center</h1>
+        <div class="row center">
+            <div class="container">
+                <div class="row center">                                                                                                                                                                         
+                    <h3>Test Code for Subject #{{test.subject.id}}</h3>
+                    <h4>{{ test.test_code }}</h4>
+                </div>
+            </div>
+        </div>
+        <div align="center">
+          <a href="{% url 'psych:dashboard' %}">Back to Dashboard</a>  
+        </div>
+    </div>
+</div>
+{% endblock %}

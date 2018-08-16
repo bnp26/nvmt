@@ -1,4 +1,8 @@
 {% extends 'home/base.html' %}
+{% load static %}
+{% block jsfiles %}
+<script src="{% static 'psych/js/dashboard.js' %}"></script>
+{% endblock %}
 
 {% block content %}
   <header>
@@ -37,7 +41,7 @@
           </span>
         
           <div class="col s8 m4 l3">
-            <button data-target="modal1" class="btn modal-trigger" onclick="toggleModal()">add new patient</button>
+            <button data-target="patient_modal" class="btn modal-trigger" onclick="toggleModal()">add new patient</button>
           </div>
         </div>
       </div>
@@ -52,6 +56,7 @@
                       <tr>
                           <th>Identification</th>
                           <th>Tests Taken</th>
+                          <th>Select Test</th>
                           <th>Create Test</th>
                       </tr>
                     </thead>
@@ -62,7 +67,14 @@
                         <div class="valign-wrapper">
                           <td style="padding: 5px; width: 115px;" class="truncate">{{ subj.id }}</td>
                           <td style="padding: 5px;">0</td>
-                          <td style="padding: 5px;"><a name="gen_test" class="waves-effect waves-light btn modal-trigger" href="{% url 'test_app:generate_test' subject=subj.id %}" style="padding:0px 10px; height: 30px;">Give Test</a></td>
+                          <td style="padding: 5px;">
+                            <select id="test_type_dropdown">
+                              {% for test_type in test_types %}
+                                <option value="{% url 'psych:generate_test_code' subj.id %}?test_type={{ test_type }}">{{ test_type }}</option>
+                              {% endfor %}
+                            </select>
+                          </td>
+                          <td style="padding: 5px;"><button name="gen_test" class="waves-effect waves-light btn modal-trigger" onclick="generateNewTest($('#test_type_dropdown option:selected').val());" style="padding:0px 10px; height: 30px;">Give Test</button></td>
                         </div>
                       </tr>
                     {% endfor %}
@@ -139,17 +151,17 @@
               </div>
               <div class="row"> 
                 <div style="margin-left: 8px;" class="input-field col s3 suffix">
-                  <i class="small material-icons"><button data-target="#modalMeds" class="modal-trigger" onclick="toggleMedsModal()">add</button></i>
+                  <i class="small material-icons"><button data-target="#modalMeds" class="modal-trigger waves-effect waves-light btn" onclick="toggleMedsModal()">add</button></i>
                   {{ subject_form.meds }}
                   <label for="meds">Medication</label>
                 </div>
                 <div class="input-field col s3 offset-s1 suffix">
-                  <i class="small material-icons"><button data-target="#modalMedIssues" class="modal-trigger" onclick="toggleMedIssuesModal()">add</button></i>
+                  <i class="small material-icons"><button data-target="#modalMedIssues" class="modal-trigger waves-effect waves-light btn" onclick="toggleMedIssuesModal()">add</button></i>
                   {{ subject_form.med_issues }}
                   <label for="med_issues">Medical Diagnoses</label>
                 </div>
                 <div class="input-field col s3 offset-s1 suffix">
-                  <i class="small material-icons"><button data-target="modalPsychIssues" class="modal-trigger" onclick="togglePsychIssuesModal()">add</button></i>
+                  <i class="small material-icons"><button data-target="modalPsychIssues" class="modal-trigger waves-effect waves-light btn" onclick="togglePsychIssuesModal()">add</button></i>
                   {{ subject_form.mental_issues }}
                   <label for="psych_issues">Psychological Diagnoses</label>
                 </div>
@@ -159,13 +171,13 @@
         </form>
       </div>
       <div class="modal-footer">
-        <button id="modal1" class="modal-action modal-close waves-effect btn" onclick="submitNewSubject('{{ subject_form.errors }}')">Add Subject</button>
+        <button id="patient_modal" class="modal-action modal-close waves-effect btn" onclick="submitNewSubject('{{ subject_form.errors }}')">Add Subject</button>
       </div>
   </div>
   <div id="modalMeds" class="modal modal-fixed-footer" style="overflow:hidden;overflow-y:visible;">
     {% csrf_token %}
     <div class="modal-content" style="overflow-y:visible;">
-      <h5 class="center">New Medication</h6>
+      <h5 class="center">New Medication</h5>
       <div class="row">
         <div class="col s12">
         </div>
@@ -184,13 +196,13 @@
         </div>
     </div>
     <div class="modal-footer">
-      <button id="med_modal" class="modal-action modal-close waves-effect btn" onclick="addNewMedication('{{ csrf_token }}');">Add Medication</button>
+      <button id="med_modal" class="modal-action modal-close waves-effect btn" onclick="addNewMedication('{{ csrf_token }}', '{% url 'psych:new_medication' %}');">Add Medication</button>
     </div>
   </div>
   <div id="modalMedIssues" class="modal modal-fixed-footer" style="overflow:hidden;overflow-y:visible;">
     {% csrf_token %}
     <div class="modal-content" style="overflow-y:visible;">
-      <h5 class="center">New Medical Diagnosis</h6>
+      <h5 class="center">New Medical Diagnosis</h5>
       <div class="row">
         <div class="col s12">
         </div>
@@ -205,13 +217,13 @@
         </div>
     </div>
     <div class="modal-footer">
-      <button id="med_issues_modal" class="modal-action modal-close waves-effect btn" onclick="addNewMedicalDiagnosis('{{ csrf_token }}')">Add Diagnosis</button>
+      <button id="med_issues_modal" class="modal-action modal-close waves-effect btn" onclick="addNewMedicalDiagnosis('{{ csrf_token }}', '{% url 'psych:new_med_diag' %}');">Add Diagnosis</button>
     </div>
   </div>
   <div id="modalPsychIssues" class="modal modal-fixed-footer" style="overflow:hidden;overflow-y:visible;">
     {% csrf_token %}
     <div class="modal-content" style="overflow-y:visible;">
-      <h5 class="center">New Psychological Diagnosis</h6>
+      <h5 class="center">New Psychological Diagnosis</h5>
       <div class="row">
         <div class="col s12">
         </div>
@@ -226,7 +238,7 @@
         </div>
     </div>
     <div class="modal-footer">
-      <button id="psych_issues_modal" class="modal-action modal-close waves-effect btn" onclick="addNewPsychologicalDiagnosis('{{ csrf_token }}')">Add Diagnosis</button>
+      <button id="psych_issues_modal" class="modal-action modal-close waves-effect btn" onclick="addNewPsychologicalDiagnosis('{{ csrf_token }}', '{% url 'psych:new_psych_diag' %}');">Add Diagnosis</button>
     </div>
   </div>
   <script type="text/javascript">
