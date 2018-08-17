@@ -288,15 +288,6 @@ function sendData() {
       console.log(error);
   }
   });
-
-  /*superagent
-   .post(url)
-   .send(data)
-   .set('X-CSRFToken', csrftoken)
-   .set('Accept', 'application/json')
-   .then(function(res) {
-      alert('yay got ' + JSON.stringify(res.body));
-   });*/
 }
 
 function onTargetClick(event, data) {
