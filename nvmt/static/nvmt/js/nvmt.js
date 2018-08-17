@@ -136,13 +136,12 @@ function finishedTrial(trial) {
   stage.removeAllChildren();
   stage.removeAllEventListeners();
   stage.update();
-  if (trial.trial_num == 5) {
-    sendData();
+  if (trial.trial_num == 1) {
     let tempTimer = new Timer();
     tempTimer.start({
       countdown: true,
       startValues: {
-        minutes: 30
+        seconds: 5
       },
       callback: function(timer) {
         stage.removeAllChildren();
@@ -205,7 +204,7 @@ function finishedTrial(trial) {
       stage.update();
     });
   }
-  else if(trial.trial_num == 6) {
+  else if(trial.trial_num == 2) {
     sendData();
     stage.removeAllChildren();
     stage.removeAllEventListeners();
@@ -308,7 +307,7 @@ function onTargetClick(event, data) {
   if (this.is_target) {
     data.trial.cards.clickTarget(this);
     stage.removeChild(this.rect);
-    rect.graphics.f("#16a2e0").dr(oldRect.graphics.command.x, oldRect.graphics.command.y, oldRect.graphics.command.w, oldRect.graphics.command.h);
+    rect.graphics.f("#009688").dr(oldRect.graphics.command.x, oldRect.graphics.command.y, oldRect.graphics.command.w, oldRect.graphics.command.h);
     data.trial.pop();
     stage.addChild(rect);
     stage.update();
@@ -317,7 +316,7 @@ function onTargetClick(event, data) {
   } else {
     data.trial.cards.clickTarget(this);
     stage.removeChild(this.rect);
-    rect.graphics.f("#004d40").dr(oldRect.graphics.command.x, oldRect.graphics.command.y, oldRect.graphics.command.w, oldRect.graphics.command.h);
+    rect.graphics.f("#ef5350").dr(oldRect.graphics.command.x, oldRect.graphics.command.y, oldRect.graphics.command.w, oldRect.graphics.command.h);
     stage.addChild(rect);
     this.rect = rect;
     stage.update();
@@ -355,9 +354,10 @@ class Target {
 }
 
 class Card {
-  constructor(targets, trial) {
+  constructor(targets, trial, card_num) {
     this.targets = [];
     this.clicked_targets = [];
+    this.card_num = card_num;
     this.next = null;
     this.timer = new Timer();
     if (targets !== null) {
@@ -401,16 +401,18 @@ class Trial {
     this.cards = null;
     this.finishedCards = [];
     // adding cards in the cards dictionary to the trial
+    let counter = 1;
     for (let card of Object.keys(cards)) {
       if (this.cards === null) {
-        this.cards = new Card(cards[card], this);
+        this.cards = new Card(cards[card], this, counter);
       } else {
         let current = this.cards;
         while (current.next !== null) {
           current = current.next;
         }
-        current.next = new Card(cards[card], this);
+        current.next = new Card(cards[card], this, counter);
       }
+      counter += 1;
     }
   }
 
@@ -431,7 +433,7 @@ class Trial {
     for (let target of card.targets) {
       let rect = target.rect;
       let sizeScale = Math.max(windowWidthScale, windowHeightScale);
-      rect.graphics.beginFill("#26a69a").dr(target.x * windowWidthScale, target.y * windowHeightScale, sizeScale * 1.25, sizeScale * 1.25);
+      rect.graphics.beginFill("#212121").dr(target.x * windowWidthScale, target.y * windowHeightScale, sizeScale * 1.25, sizeScale * 1.25);
       this.stage.addChild(rect);
     }
     card.start();

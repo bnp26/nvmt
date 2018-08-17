@@ -4,10 +4,13 @@ from django.contrib.auth.models import User
 
 from psych.models import Subject
 
+import datetime
+
 class Test(models.Model):
     test_code = models.CharField(max_length=8, primary_key=True)
     subject = models.ForeignKey(Subject, related_name='test', on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now=True)
+    completed = models.BooleanField(blank=True)
 
     class Meta:
         ordering = ['created']
@@ -23,8 +26,7 @@ class Trial(models.Model):
 
 
 class Card(models.Model):
-    start = models.DateTimeField(auto_now_add=True)
-    finish = models.DateTimeField()
+    card_num = models.IntegerField(default=1)
     trial = models.ForeignKey(Trial, related_name='card', on_delete=models.CASCADE)
 
 class Target(models.Model):
@@ -32,6 +34,5 @@ class Target(models.Model):
     y = models.IntegerField(default=0)
     card = models.ForeignKey(Card, related_name='targets', on_delete=models.CASCADE)
     is_goal = models.BooleanField(default=False)
-    created_at = models.DateTimeField(blank=True)
-    clicked_at = models.DateTimeField(blank=True)
     click_time = models.DurationField(blank=True)
+    
