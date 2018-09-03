@@ -38,11 +38,20 @@ class Medication(models.Model):
     name = models.CharField(max_length = 80, blank=False)
     dosage = models.CharField(max_length = 5, blank=False)
 
+    def __str__(self):
+        return "{0} {1}".format(self.name, self.dosage)
+
 class MedicalDiagnosis(models.Model):
     name = models.CharField(max_length = 120, blank=False)
+
+    def __str__(self):
+        return "{0}".format(self.name)
     
 class PsychDiagnosis(models.Model):
     name = models.CharField(max_length = 120, blank=False)
+    
+    def __str__(self):
+        return "{0}".format(self.name)
 
 class Subject(models.Model):
     id = models.CharField(max_length=16, primary_key=True, default=_createId)
@@ -59,3 +68,14 @@ class Subject(models.Model):
     
     class Meta:
         ordering = ('created', 'id', )
+
+class Test(models.Model):
+    test_code = models.CharField(max_length=8, primary_key=True)
+    test_type = models.CharField(max_length=45, default="PNMT", blank=False)
+    subject = models.ForeignKey(Subject, related_name='test', on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now=True)
+    status = models.CharField(max_length=12, default="Distributed")
+    completed = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['created']

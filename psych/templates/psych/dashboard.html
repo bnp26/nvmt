@@ -1,20 +1,22 @@
 {% extends 'home/base.html' %}
 {% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'psych/css/base.css' %}">
+{% endblock %}
+
 {% block jsfiles %}
 <script src="{% static 'psych/js/dashboard.js' %}"></script>
 {% endblock %}
 
-{% block content %}
+{% block navbar %}
   <header>
     <nav class="">
       <div class="nav-wrapper">
-        <a href="#" data-activates="nav-mobile" class="button-collapse top-nav full hide-on-large-only">
-          <i class="mdi-navigation-menu"></i>
+        <a href="{% url 'psych:dashboard' %}" class="brand-logo page-title" style="margin-top: 0px;">
+          <img src="{% static 'psych/img/logo_white.png' %}" style="margin-left:10px; padding-top: 10px;" width="120"/>
         </a>
-        <span href="#" class="brand-logo page-title">
-          <img src="img/logo.png" width="160"/>
-          {{ user}}
-        </span>
+        
         <ul class="right hide-on-med-and-down">
            <li>
             <a href="{% url 'psych:databoard' %}" class="tooltipped" data-position="left" data-delay="50" data-tooltip="Back to Databoard">Databoard</a>
@@ -32,30 +34,33 @@
       </div>
     </nav>
   </header>
+  {% endblock %}
+
+  {% block content %}
   <main>
     <div class="card card-header">
       <div class="card-content">
         <div class="row">
           <span class="card-title black-text" style="text-align: center;">
-            {{ user }}'s Dashboard
+            <b>{{ user|title }}'s Dashboard</b>
           </span>
-        
-          <div class="col s8 m4 l3">
-            <button data-target="patient_modal" class="btn modal-trigger" onclick="toggleModal()">add new patient</button>
-          </div>
         </div>
       </div>
+    </div>
+    <div class="row">
+      <div class="col s8 m4 l3">
+          <button data-target="patient_modal" class="btn modal-trigger hoverable" onclick="toggleModal()">add new patient</button>
+        </div>
     </div>
     <div class="row">
       <div class="col s12 m6 l6">
           <div class="card">
               <div class="card-content black-text center">
                   <p style="font-size: 130%;">Patients</p>
-                  <table class="center striped">
+                  <table class="centered striped">
                     <thead>
                       <tr>
                           <th>Identification</th>
-                          <th>Tests Taken</th>
                           <th>Select Test</th>
                           <th>Create Test</th>
                       </tr>
@@ -63,19 +68,16 @@
 
                     <tbody>
                     {% for subj in subjects %}
-                      <tr >
-                        <div class="valign-wrapper">
-                          <td style="padding: 5px; width: 115px;" class="truncate">{{ subj.id }}</td>
-                          <td style="padding: 5px;">0</td>
-                          <td style="padding: 5px;">
-                            <select id="test_type_dropdown">
+                      <tr>
+                          <td style="padding: 5px; width: 150px; vertical-align: middle; margin-right: 500px;">{{ subj.id }}</td>
+                          <td style="padding-left: 6%;">
+                            <select id="{{ subj.id }}_dropdown">
                               {% for test_type in test_types %}
                                 <option value="{% url 'psych:generate_test_code' subj.id %}?test_type={{ test_type }}">{{ test_type }}</option>
                               {% endfor %}
                             </select>
                           </td>
-                          <td style="padding: 5px;"><button name="gen_test" class="waves-effect waves-light btn modal-trigger" onclick="generateNewTest($('#test_type_dropdown option:selected').val());" style="padding:0px 10px; height: 30px;">Give Test</button></td>
-                        </div>
+                          <td style="padding: 5px;"><button name="gen_test" class="waves-effect waves-light btn modal-trigger hoverable" onclick="generateNewTest($('#{{subj.id}}_dropdown option:selected').val());">Give Test</button></td>
                       </tr>
                     {% endfor %}
                     </tbody>
@@ -87,27 +89,26 @@
           <div class="card">
               <div class="card-content black-text center">
                   <p style="font-size: 130%;">Tests Being Taken</p>
-                  <table class="center striped">
+                  <table class="centered striped">
                     <thead>
                       <tr>
                           <th>Patient</th>
+                          <th>Test Name</th>
                           <th>Test Code</th>
-                          <th>Has Finished</th>
+                          <th>Status</th>
                       </tr>
                     </thead>
 
                     <tbody>
                     {% for test in subjects_taking_tests %}
                       <tr>
-                        <td style="padding: 5px; width: 115px;" class="truncate">{{ test.subject_id }}</td>
+                        <td style="padding: 5px; width: 200px; vertical-align: middle">{{ test.subject_id }}</td>
+                        <td style="padding: 5px;">{{ test.test_type }}</td>
                         <td style="padding: 5px;">{{ test.test_code }}</td>
                         <td style="padding: 5px;">
-                        {% if test.is_finished %}
-                        Yes
-                        {% else %}
-                        No
-                        {% endif %}
+                        {{ test.status }}
                         </td>
+                        <td style="padding: 5px;"><a class="waves-effect waves-light btn modal-trigger hoverable {% if not test.completed %} disabled {% endif %}" href="{% url 'psych:nvmt_test_report' test.test_code %}">View Report</a></td>
                       </tr>
                     {% endfor %}
                     </tbody>

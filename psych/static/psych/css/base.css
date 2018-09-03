@@ -18,3 +18,17 @@
     clear: both;
     display: table;
 }
+
+.ct-series-a .ct-line,
+.ct-series-a .ct-bar {
+  stroke: blue;
+}
+
+.ct-series-b .ct-line,
+.ct-series-b .ct-point {
+  stroke: green;
+}
+
+button {
+  padding-bottom: 35px;
+}

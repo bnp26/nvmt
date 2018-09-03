@@ -1,7 +1,8 @@
 from .models import PsychDiagnosis, MedicalDiagnosis, Medication, Subject, _createId
 from .forms import SubjectForm, MedicationForm, MedicalDiagnosisForm, PsychDiagnosisForm, GetTestForm
 
-from nvmt.models import Test as NvmtTest
+from nvmt import models as NvmtModels
+from tmt import models as TmtModels
 
 from django.contrib import admin
 from django.contrib.auth import authenticate, login, logout
@@ -18,8 +19,10 @@ import json
 import pdb
 import random
 import string
+import math
 
-TEST_TYPES = ['NVMT', 'QPPI']
+TEST_TYPES = ['NVMT', 'TMT']
+NVMT_GOALS = [{'x':25, 'y': 20}, {'x': 40, 'y': 15}, {'x': 21, 'y': 29}, {'x': 19, 'y': 5}, {'x': 14, 'y': 21}, {'x': 40, 'y': 9}, {'x': 16, 'y': 14}, {'x': 39, 'y': 26}, {'x': 18, 'y': 9}]
 
 @login_required
 def dashboard(request):
@@ -41,9 +44,10 @@ def dashboard(request):
         subjects = list(Subject.objects.filter(user=request.user))
         subjects_taking_tests = list()
         for subj in subjects:
-            test_list = list(NvmtTest.objects.filter(subject=subj).values())
+            test_list = list(NvmtModels.NvmtTest.objects.filter(subject=subj).values())
             if len(test_list) != 0:
-                subjects_taking_tests.append(test_list[0])
+                for test in test_list:
+                    subjects_taking_tests.append(test)
                 
         context['subjects_taking_tests'] = subjects_taking_tests
         context['subjects'] = subjects
@@ -58,7 +62,25 @@ def code_generator(size, chars):
 def generate_test(subject, test_type):
     code = code_generator(8, string.ascii_uppercase + string.digits)
     if test_type == 'NVMT':
-        return NvmtTest(test_code=code, subject=subject)
+        tests_being_taken = NvmtModels.NvmtTest.objects.filter(subject=subject)
+        if len(list(tests_being_taken)) == 0:
+            return NvmtModels.NvmtTest(test_code=code, subject=subject, status="Created")
+        else:
+            tests = list(tests_being_taken)
+            for test in tests:
+                if not test.completed:
+                    return test
+            return NvmtModels.NvmtTest(test_code=code, subject=subject, status="Created")
+    elif test_type == 'TMT':
+        tests_being_taken = TmtModels.TmtTest.objects.filter(subject=subject)
+        if len(list(tests_being_taken)) == 0:
+            return TmtModels.TmtTest(test_code=code, subject=subject, status="Created")
+        else:
+            tests = list(tests_being_taken)
+            for test in tests:
+                if not test.completed:
+                    return test
+            return TmtModels.TmtTest(test_code=code, subject=subject, status="Created")
     else:
         return None
 
@@ -72,7 +94,7 @@ def generate_test_code(request, subject):
         template = "psych/generated_code.html"
         return render(request, template, context)
     else:
-        return redirect('/psych/dashboard')
+        raise ValueError('Test has already been distributed')
 
 @login_required
 def add_medication(request):
@@ -83,12 +105,12 @@ def add_medication(request):
             print(request.body)
             med_obj = Medication(name=request.POST.get('name'), dosage=request.POST.get('dosage'))
             med_obj.save()
-            return JsonResponse(serialize('json', list(Medication.objects.all())), safe=False)
+            return redirect('/psych/dashboard')
         else:
-            return JsonResponse("was trying to do a ajax get request")
+            return JsonResponse("Something went wrong")
     else:
-        return JsonResponse("was trying to do a ajax get request")
-    return JsonResponse("IDK")
+        return JsonResponse("Should have never gotten here")
+    return JsonResponse("wtf")
 
 @login_required
 def add_medical_diagnosis(request):
@@ -98,12 +120,12 @@ def add_medical_diagnosis(request):
             print("in add_medical_diagnosis")
             med_diag_obj = MedicalDiagnosis(name=request.POST.get('name'))
             med_diag_obj.save()
-            return JsonResponse(serialize('json', list(MedicalDiagnosis.objects.all())), safe=False)
+            return redirect('/psych/dashboard')
         else:
-            return JsonResponse("was trying to do a ajax get request")
+            return JsonResponse("Something went wrong")
     else:
-        return JsonResponse("was trying to do a ajax get request")
-    return JsonResponse("IDK")
+        return JsonResponse("Should have never gotten here")
+    return JsonResponse("wtf")
 
 @login_required
 def add_psychological_diagnosis(request):
@@ -112,12 +134,12 @@ def add_psychological_diagnosis(request):
             print("in add_psych_diagnosis")
             psy_diag_obj = PsychDiagnosis(name=request.POST.get('name'))
             psy_diag_obj.save()
-            return JsonResponse(serialize('json', list(PsychDiagnosis.objects.all())), safe=False)
+            return redirect('/psych/dashboard')
         else:
-            return JsonResponse("was trying to do a ajax get request")
+            return JsonResponse("Something went wrong")
     else:
-        return JsonResponse("was trying to do a ajax get request")
-    return JsonResponse("IDK")
+        return JsonResponse("Should have never gotten here")
+    return JsonResponse("wtf")
 
 @login_required
 def databoard(request):
@@ -157,9 +179,9 @@ def testing_center(request):
         if test_form.is_valid():
             test_form = test_form.clean()
             potential_test_code = test_form['test_code'] 
-            test_exists = get_object_or_404(NvmtTest, test_code=potential_test_code)
+            test_exists = get_object_or_404(NvmtModels.NvmtTest, test_code=potential_test_code)
             context['test'] = test_exists
-            return redirect('psych/spy/{0}'.format(test_exists))
+            return redirect('psych/nvmt_test_report/{0}'.format(test_exists))
         else:
             context['errors'].push('test_code')
             return redirect('/psych/testing_center')
@@ -168,6 +190,68 @@ def testing_center(request):
         context['test_form'] = test_form
         template = 'psych/testing_center.html'
         return render(request, template, context)
+
+def __getClickTime__(target):
+    return target.click_time
+
+@login_required
+def nvmt_test_report(request, test_code):
+    test_data = {}
+    test = get_object_or_404(NvmtModels.NvmtTest, test_code=test_code)
+    subj = get_object_or_404(Subject, id=test.subject.id)
+    norms = test.get_normative_data(subj.age)
+    complex_norms = test.get_complex_data(subj.age)
+    simple_norms = test.get_simple_data(subj.age)
+    test_data['test_code'] = test.test_code
+    test_data['subject'] = test.subject.id
+    test_data['completed'] = test.completed
+    test_data['created'] = str(test.created)
+    test_data['biased_norms'] = test.get_biased_data()
+    test_data['trials'] = list()
+    trials = list(NvmtModels.Trial.objects.filter(test=test))
+    trial_counter = 0
+
+    # setting up json along with making calculations for the report
+    for trial in trials:
+        json_trials = test_data['trials']
+        # appending to a given trial a new trial with a list of cards
+        json_trials.append({'trial_num': trial.trial_num, 'cards': list()})
+        cards = list(NvmtModels.Card.objects.filter(trial=trial))
+        card_counter = 0
+        for card in cards:
+            # initialize a JSON card object with its card number, a list of its targets, and how many times it was clicked
+            json_trials[trial_counter]['cards'].append({'card_num': card.card_num, 'targets': list(), 'num_clicks': 0, 'target_distances': list() })
+            json_cards = json_trials[trial_counter]['cards']
+            targets = list(NvmtModels.Target.objects.filter(card=card))
+            # sort by click time
+            targets.sort(key=__getClickTime__)
+            # only use the first two targets clicked
+            target_dist = list()
+            if len(targets) < 2:
+                target_dist = list(targets)
+            else:
+                target_dist = list(targets[0:2])
+            for target in target_dist:
+                width = abs(NVMT_GOALS[card_counter]['x'] - target.x)
+                height = abs(NVMT_GOALS[card_counter]['y'] - target.y)
+                dist = round(math.sqrt(width**2 + height**2)/4, 4)
+                json_cards[card_counter]['target_distances'].append(dist)
+            json_cards[card_counter]['num_clicks'] = len(targets)
+            for target in list(targets):
+                json_targets = json_cards[card_counter]['targets']
+                json_targets.append({'x': target.x, 'y': target.y, 'is_goal': target.is_goal, 'clicked': str(target.click_time)[0:10]})
+            card_counter += 1
+        original = norms[trial_counter]
+        simple = simple_norms[trial_counter]
+        complicated = complex_norms[trial_counter]
+        json_trials[trial_counter]['originalValues'] = original
+        json_trials[trial_counter]['simpleValues'] = simple
+        json_trials[trial_counter]['complexValues'] = complicated
+        trial_counter += 1
+    # sending the json
+    context = {'test': json.dumps(test_data)}
+    template = 'psych/nvmt_test_report.html'
+    return render(request, template, context)   
 
 @login_required
 def scales(request):

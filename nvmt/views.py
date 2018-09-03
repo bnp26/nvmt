@@ -11,6 +11,8 @@ from .models import *
 from psych.forms import GetTestForm
 
 import json
+import pdb
+import datetime
 # from .serializers import *
 # Create your views here.
 
@@ -24,7 +26,7 @@ def test_home(request):
             print(get_test_form)
             potential_test_code = get_test_form.clean()
             test_code = potential_test_code['test_code']
-            test_exists = get_object_or_404(Test, test_code=test_code)
+            test_exists = get_object_or_404(NvmtTest, test_code=test_code)
             context['test'] = test_exists
             return redirect('/nvmt/test-start/{0}'.format(test_code))
         else:
@@ -40,24 +42,28 @@ def test_start(request, test_code):
         test_data = request.POST.get('test_data')
         for trial in test_data['trials']:
     '''
-    context = {
-        'test': '',
-        'trial': '',
-        'cards': [],
-        'points': []
-    }
-    test = get_object_or_404(Test, test_code=test_code)
-    if test.completed:
-        return JsonResponse("Test has already been completed!!! Do Note overwrite!!!!")
+    context = {}
+    if request.is_ajax:
+        if request.method == 'POST':
+            json_data = json.loads(request.body)
+            test = get_object_or_404(NvmtTest, test_code=test_code)
+            print(json_data)
+            test.status = json_data['status']
+            test.save(update_fields=['status'])
+            return JsonResponse("success", safe=False)
     else:
-        context['test'] = test
+        test = get_object_or_404(NvmtTest, test_code=test_code)
+        if test.completed:
+            return JsonResponse("Test has already been completed!!! Do Note overwrite!!!!")
+        else:
+            context['test'] = test
     return render(request, 'nvmt/index.html', context)
 
 def send_test_data(request, test_code):
     if request.is_ajax():
         if request.method == 'POST':
             test_json = json.loads(request.body)
-            test = get_object_or_404(Test, test_code=test_code)
+            test = get_object_or_404(NvmtTest, test_code=test_code)
             if test.completed:
                 return JsonResponse("Test has already been completed!!! Do Note overwrite!!!!")
             # for now, parse data and save the test assuming the took the whole test.
@@ -72,10 +78,11 @@ def send_test_data(request, test_code):
                     for target_dict in card['clicked_targets']:
                         target = target_dict['target']
                         time = target['clicked'].split(':')
-                        current_target = Target(card=current_card, x=target['x'], y=target['y'], is_goal=target['is_target'], click_time=datetime.timedelta(hours=int(time[0]), minutes=int(time[1]), seconds=int(time[2]), milliseconds=int(time[3])))
+                        current_target = Target(card=current_card, x=target['x'], y=target['y'], is_goal=target['is_target'], click_time=datetime.timedelta(hours=int(time[0]), minutes=int(time[1]), seconds=int(time[2]), milliseconds=int(time[3])*100))
                         current_target.save()
             test.completed = True
-            test.save(['completed'])
+            test.status = "Completed"
+            test.save(update_fields=['completed', 'status'])
             return JsonResponse("Success Saving Test!")
     else:
         context = {}

@@ -14,5 +14,6 @@ urlpatterns = [
     url(r'^databoard/', views.databoard, name='databoard'),
     url(r'^testing-center/$', views.testing_center, name='testing_center'),
     url(r'^scales/$', views.scales, name='scales'),
-    url(r'^generate-test-code/(?P<subject>\w+)/$', views.generate_test_code, name='generate_test_code')
+    url(r'^generate-test-code/(?P<subject>\w+)/$', views.generate_test_code, name='generate_test_code'),
+    url(r'^nvmt-test-report/(?P<test_code>\w{8})/$', views.nvmt_test_report, name='nvmt_test_report')
 ]

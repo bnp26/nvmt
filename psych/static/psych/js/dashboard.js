@@ -89,5 +89,5 @@ function addNewPsychologicalDiagnosis(csrftoken, url) {
 }
 
 function generateNewTest(url) {
-  window.location.href = url;
+  window.location.replace(url);
 }

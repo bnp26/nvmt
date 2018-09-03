@@ -120,9 +120,9 @@ class SubjectForm(forms.Form):
     education = forms.ChoiceField(choices=EDU_CHOICES, widget=forms.Select(attrs={'class':'form-control'}))
     chronic_desc = forms.CharField(max_length=255, required=False, help_text='chronic description in less than 255 characters', 
                                    widget=forms.Textarea(attrs={'placeholder':'chronic description', 'class':'materialize-textarea txtarea'}))
-    meds = forms.MultipleChoiceField(widget=forms.SelectMultiple(attrs={'class': 'meds-choices'}), choices=MED_CHOICES, required=False)
-    med_issues = forms.MultipleChoiceField(widget=forms.SelectMultiple(attrs={'class': 'med-issues-choices'}), choices=MED_ISSUE_CHOICES, required=False)
-    mental_issues = forms.MultipleChoiceField(widget=forms.SelectMultiple(attrs={'class': 'mental-issues-choices'}), choices=MENTAL_ISSUE_CHOICES, required=False)
+    meds = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class': 'meds-choices'}), queryset=Medication.objects.all(), required=False)
+    med_issues = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class': 'med-issues-choices'}), queryset=MedicalDiagnosis.objects.all(), required=False)
+    mental_issues = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class': 'mental-issues-choices'}), queryset=PsychDiagnosis.objects.all(), required=False)
     
     def save(self, data):
         print("saving")
@@ -132,13 +132,10 @@ class SubjectForm(forms.Form):
         subject.save()
         
         for med in data.get('meds'):
-            med_obj = Medication.objects.get(id=med)
-            subject.meds.add(med_obj)
+            subject.meds.add(med)
         
         for med_issue in data.get('med_issues'):
-            med_issue_obj = MedicalDiagnosis.objects.get(id=med_issue)
-            subject.med_issues.add(med_issue_obj)
+            subject.med_issues.add(med_issue)
         
         for mental_issue in data.get('mental_issues'):
-            mental_issue_obj = PsychDiagnosis.objects.get(id=mental_issue)
             subject.mental_issues.add(mental_issue)

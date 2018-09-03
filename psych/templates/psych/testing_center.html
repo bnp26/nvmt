@@ -1,22 +1,23 @@
 {% extends 'home/base.html' %}
+{% load static %}
 
-{% block content %}
+{% block navbar %}
   <header>
     <nav class="">
       <div class="nav-wrapper">
         <a href="#" data-activates="nav-mobile" class="button-collapse top-nav full hide-on-large-only">
           <i class="mdi-navigation-menu"></i>
         </a>
-        <span href="#" class="brand-logo page-title">
-          <img src="img/logo.png" width="160"/>
-          {{ user}}
-        </span>
+        <a href="{% url 'psych:dashboard' %}" class="brand-logo page-title" style="margin-top: 0px;">
+            <img src="{% static 'psych/img/logo_white4x.png' %}" style="padding-top:0px;" width="120"></img>
+            {{ user}}
+        </a>
         <ul class="right hide-on-med-and-down">
           <li>
             <a href="{% url 'psych:dashboard' %}" class="tooltipped" data-position="left" data-delay="50" data-tooltip="Back to Dashboard">Dashboard</a>
           </li>
           <li>
-            <a href="{% url 'psych:databoard' %}" class="tooltipped" data-position="left" data-delay="50" data-tooltip="Back to Dashboard">Databoard</a>
+            <a href="{% url 'psych:databoard' %}" class="tooltipped" data-position="left" data-delay="50" data-tooltip="Go to Databoard">Databoard</a>
           </li>
           <li>
             <a href="{% url 'home:logout' %}" class="tooltipped" data-position="left" data-delay="50" data-tooltip="Logout">Logout</a>
@@ -26,6 +27,9 @@
     </nav>
   </header>
 <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
+{% endblock %}
+
+{% block content %}
 <main>
   <div class="card card-header">
     <div class="card-content">

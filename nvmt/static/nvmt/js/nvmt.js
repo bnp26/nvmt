@@ -64,7 +64,7 @@ const cards = {
     { 'x': 23, 'y': 26, 'is_goal': false },
     { 'x': 47, 'y': 17, 'is_goal': false },
     { 'x': 47, 'y': 29, 'is_goal': false },
-    { 'x': 49, 'y': 11, 'is_goal': false }
+    { 'x': 48, 'y': 11, 'is_goal': false }
   ],
   card_5: [
     { 'x': 25, 'y': 5, 'is_goal': false },
@@ -120,8 +120,8 @@ const cards = {
     { 'x': 15, 'y': 18, 'is_goal': false },
     { 'x': 9, 'y': 25, 'is_goal': false },
     { 'x': 24, 'y': 17, 'is_goal': false },
-    { 'x': 14, 'y': 34, 'is_goal': false },
-    { 'x': 39, 'y': 15, 'is_goal': false },
+    { 'x': 34, 'y': 14, 'is_goal': false },
+    { 'x': 39, 'y': 5, 'is_goal': false },
     { 'x': 39, 'y': 24, 'is_goal': false },
     { 'x': 41, 'y': 29, 'is_goal': false }
   ]
@@ -136,7 +136,7 @@ function finishedTrial(trial) {
   stage.removeAllChildren();
   stage.removeAllEventListeners();
   stage.update();
-  if (trial.trial_num == 1) {
+  if (trial.trial_num == 5) {
     let tempTimer = new Timer();
     tempTimer.start({
       countdown: true,
@@ -204,7 +204,7 @@ function finishedTrial(trial) {
       stage.update();
     });
   }
-  else if(trial.trial_num == 2) {
+  else if(trial.trial_num == 6) {
     sendData();
     stage.removeAllChildren();
     stage.removeAllEventListeners();
@@ -298,7 +298,7 @@ function onTargetClick(event, data) {
   if (this.is_target) {
     data.trial.cards.clickTarget(this);
     stage.removeChild(this.rect);
-    rect.graphics.f("#009688").dr(oldRect.graphics.command.x, oldRect.graphics.command.y, oldRect.graphics.command.w, oldRect.graphics.command.h);
+    rect.graphics.f("#ff1744").dr(oldRect.graphics.command.x, oldRect.graphics.command.y, oldRect.graphics.command.w, oldRect.graphics.command.h);
     data.trial.pop();
     stage.addChild(rect);
     stage.update();
@@ -307,7 +307,7 @@ function onTargetClick(event, data) {
   } else {
     data.trial.cards.clickTarget(this);
     stage.removeChild(this.rect);
-    rect.graphics.f("#ef5350").dr(oldRect.graphics.command.x, oldRect.graphics.command.y, oldRect.graphics.command.w, oldRect.graphics.command.h);
+    rect.graphics.f("#bdbdbd").dr(oldRect.graphics.command.x, oldRect.graphics.command.y, oldRect.graphics.command.w, oldRect.graphics.command.h);
     stage.addChild(rect);
     this.rect = rect;
     stage.update();
@@ -416,15 +416,15 @@ class Trial {
   }
 
   draw() {
-    var ctx = $('#demoCanvas')[0].getContext('2d');
-    var windowWidthScale = ctx.canvas.width / 50;
+    var ctx = $('#demoCanvas')[0].getContext('2d'); 
+    var windowWidthScale = ctx.canvas.width / 60;
     var windowHeightScale = ctx.canvas.height / 35;
 
     let card = this.cards;
     for (let target of card.targets) {
       let rect = target.rect;
       let sizeScale = Math.max(windowWidthScale, windowHeightScale);
-      rect.graphics.beginFill("#212121").dr(target.x * windowWidthScale, target.y * windowHeightScale, sizeScale * 1.25, sizeScale * 1.25);
+      rect.graphics.beginFill("#212121").dr(target.x * windowWidthScale * 1.1675, target.y * windowHeightScale, sizeScale * 1.5, sizeScale * 1.5);
       this.stage.addChild(rect);
     }
     card.start();
@@ -496,6 +496,24 @@ function init() {
   button.addChild(background, label);
 
   button.addEventListener("click", function (event) {
+    let path = window.location.pathname;
+    let test_code = path.split('/')[3];
+    let url = '/nvmt/test-start/' + test_code + '/';
+    let csrftoken = $('#demoCanvas input').val();
+    let data = stringify({"status": "Started"}, null, 2);
+    $.ajax({
+      type: "POST",
+      url: url,
+      headers: {'X-CSRFToken': csrftoken},
+      dataType: 'json',
+      data: data,
+      success: function (data, textStatus, jqXHR) {
+        console.log("test has begin");
+      },
+      fail: function (error) {
+        console.log(error);
+    }
+    });
     stage.removeAllChildren();
     beginTrial(stage, 1);
   });
