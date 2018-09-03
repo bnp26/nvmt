@@ -2,6 +2,9 @@ QPSS Test Suite
 ===============
 ### A series of tests using the Quantified Process Approach.
 
-NvMT (None Verbal Memory Test)
+PNMT (Poreh Nonverbal Memory Test)
 ------------------------------
 #### Modeling The Test
+
+TMT (Trail Making Test)
+------------------------------
